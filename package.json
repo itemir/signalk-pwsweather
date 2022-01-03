@@ -1,0 +1,26 @@
+{
+  "name": "signalk-pwsweather",
+  "version": "0.1.0",
+  "description": "SignalK plugin for submitting weather information to pwsweather.com",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "signalk-node-server-plugin"
+  ],
+  "author": "Ilker Temir <ilker@ilkertemir.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dateformat": "^4.6.3",
+    "request": "^2.88.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itemir/signalk-pwsweather.git"
+  },
+  "bugs": {
+    "url": "https://github.com/itemir/signalk-pwsweather/issues"
+  },
+  "homepage": "https://github.com/itemir/signalk-pwsweather#readme"
+}
