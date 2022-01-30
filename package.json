@@ -1,6 +1,6 @@
 {
   "name": "signalk-pwsweather",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SignalK plugin for submitting weather information to pwsweather.com",
   "main": "index.js",
   "scripts": {
@@ -22,5 +22,6 @@
   "bugs": {
     "url": "https://github.com/itemir/signalk-pwsweather/issues"
   },
-  "homepage": "https://github.com/itemir/signalk-pwsweather#readme"
+  "homepage": "https://github.com/itemir/signalk-pwsweather#readme",
+  "devDependencies": {}
 }

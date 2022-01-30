@@ -14,7 +14,7 @@
  */
 
 const POLL_INTERVAL = 1      // Poll every N seconds
-const UPDATE_POSITION_INTERVAL = 3 // Update every N hours
+const UPDATE_POSITION_INTERVAL = 90 // Update every N minutes
 const API_URL = 'https://pwsupdate.pwsweather.com/api/v1/submitwx'
 const LOGIN_URL = 'https://api.pwsweather.com/auth/login/'
 const STATION_LIST_URL = 'https://api.pwsweather.com/user/stations'
@@ -86,29 +86,8 @@ module.exports = function(app) {
       return
     } 
 
-    app.debug('Logging into PWSWeather.com');
-    request({
-        uri: LOGIN_URL,
-        method: 'POST',
-	json: true,
-	headers: {
-          'content-type': 'application/json',
-	},
-	json: {
-	  email: options.email,
-	  password: options.password
-	}
-      }, function (error, response, body) {
-        if (!error || response.statusCode == 200) {
-          app.debug('Login successful');
-	  token = body.response.token;
-	  getStationDetails(options.stationId);
-	} else {
-	  app.debug('Login error');
-	  app.debug(JSON.stringify(body));
-	}
-    });
- 
+    loginToPwsWeather(options);
+
     app.setPluginStatus(`Submitting weather report every ${options.submitInterval} minutes`);
 
     let subscription = {
@@ -157,6 +136,7 @@ module.exports = function(app) {
       let httpOptions = {
         uri: API_URL,
         method: 'GET',
+	json: true,
 	qs: {
           ID: options.stationId,
 	  PASSWORD: stationKey,
@@ -174,7 +154,7 @@ module.exports = function(app) {
 
       app.debug(`Submitting data: ${JSON.stringify(httpOptions)}`);
       request(httpOptions, function (error, response, body) {
-        if (!error || response.statusCode == 200) {
+        if ((!error || response.statusCode == 200) && body.success == true) {
           app.debug('Weather report successfully submitted');
 	  app.debug(JSON.stringify(body));
 	  lastSuccessfulUpdate = Date.now();
@@ -189,6 +169,8 @@ module.exports = function(app) {
         } else {
           app.debug('Error submitting to PWSWeather.com API');
           app.debug(body); 
+	  app.debug('Logging in again');
+          loginToPwsWeather(options);
         }
       }); 
     }, options.submitInterval * 60 * 1000);
@@ -201,6 +183,31 @@ module.exports = function(app) {
     app.setPluginStatus('Pluggin stopped');
   };
 
+  function loginToPwsWeather(options) {
+    app.debug('Logging into PWSWeather.com');
+    request({
+        uri: LOGIN_URL,
+        method: 'POST',
+	json: true,
+	headers: {
+          'content-type': 'application/json',
+	},
+	json: {
+	  email: options.email,
+	  password: options.password
+	}
+      }, function (error, response, body) {
+        if (!error || response.statusCode == 200) {
+          app.debug('Login successful');
+	  token = body.response.token;
+	  getStationDetails(options.stationId);
+	} else {
+	  app.debug('Login error');
+	  app.debug(JSON.stringify(body));
+	}
+    });
+  }
+ 
   function getKeyValue(key, maxAge) {
     let data = app.getSelfPath(key);
     if (!data) {
@@ -273,7 +280,7 @@ module.exports = function(app) {
 	      updateStationPosition();
 	      positionProcess = setInterval( () => {
 	        updateStationPosition();
-    	      }, UPDATE_POSITION_INTERVAL * 60 * 60 * 1000);
+    	      }, UPDATE_POSITION_INTERVAL * 60 * 1000);
 	    }
 	  }
 	  if (!stationApiId) {
